@@ -12,8 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-version in ThisBuild := "0.1.0"
+#@namespace scala au.com.cba.omnia.beeswax
 
-uniqueVersionSettings
+struct SimpleHive {
+  1: string  stringfield
+}
 
-licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+struct SimpleHive2 {
+  1: string  stringfield2
+}

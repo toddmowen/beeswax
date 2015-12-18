@@ -1,29 +1,21 @@
-sudo: false
 language: scala
 jdk:
 - oraclejdk7
 cache:
   directories:
-  - $HOME/.ivy2
-  - $HOME/.m2
+  - "$HOME/.ivy2"
+  - "$HOME/.m2"
 install:
 - git clone https://github.com/CommBank/ci.git
 - chmod ugo+x ci/*
 - ci/sbt-setup.sh
 - ci/sbt-setup-version.sh
 script:
-- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; project core; set fork in Test := false; test; project hive; set fork in Test := false; test; project test; set fork in Test := false; test; project all; package; project example; set fork in Test := false; test; assembly; project tools; set fork in Test := false; set parallelExecution in Test := false; set logBuffered := false; test; assembly'
-  && ci/sbt-deploy.sh && ci/gh-pages.sh
+- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package' && ci/sbt-deploy.sh
+  && ci/gh-pages.sh
 after_script:
 - rm -rf ci
-notifications:
-  webhooks:
-    urls:
-    - https://webhooks.gitter.im/e/1befda9a908413f84c55
-    on_success: always
-    on_failure: always
-    on_start: false
 env:
   global:
-  - secure: G4IWzFRapMps8pNTXbEsI3zRvKlYezU/aHVzj2f90Z9cIbnF0AtV2XdmRiOyWsB1SD5Dda2ekNygsZsFH8kITKga4eUp7B6ZN9985DdbUiW6R2ari8ns2Xj4ygaqc6AR1zEJHBdM2uIacj3Z3V2vAJjuoT9uqJKHXkr7c3yW7Yk=
-  - secure: JvQKKmknPunFLgIV1VBaFyZ1gzazCZBRDDItQc5ZoyzDNF7ADc0VfuXgeCBQCiMviL/EbLf5Or0sAgVMaru3BN2OJs+ndaeD3coekdjPweA/86Qz6QYQIEmY7aGouRRGbmy0/6V5rAlpdwn5HdmiDmiH4uuiXjGW/Py0pBvthqQ=
+  - secure: RPQUZAS5Fvg7lcwK9D0FD6wlVw3VOxHzqSTkkLjNt9B8/elT0MILF5vW4qEbUHIoXHzmReksqIoSmqp6N4I1DAXYRGObiwU7koIB2YegVsqQHnhA8MBN1fnP0lOuIWzL67zjeKrBdmXAvYU+bLn4GkyH6PL5XFJ38s2mO5jBlG/LxbrSjH2dcADbnptVrC8za0SABbNKk45lgL43b6uEqK6khYINCm87233w1GFf1jL3SFcEzRLRgg7/rW0mAI5ykeumpefjEh5DM40g/CBkiATUXUF5hMqBRMwzBkXDpOXywtm4bN3pRCwIf/BudAMdtLIT3RiwOjGYdrRDPfH5KUyx2ojvE73Iqzp+UP/QW3cMnN/8v/OTv1kReaHgXWed/rxaTVOGgwZIey2ojv0efSLcl8cUNVTeD8u/W9LrBX1YD4hCqfVvMDH9mFoah4pxMfKhBeYb5lNZ2q1i6PYXBfy5BNm9cYCf6HpLlNcutDyORQSqbXAkoYHSWh/RWcRx+6HbKlCJRAgJ3Ws4JsHuhlVgQ3Vioo6qX4gKorXyADnO2fGssvpDN8DvJSbcy9+z0ZZa0uDVPjhND62OYdtc5maIEamlUyufrjlBaPFLYohM1vPwOQFF2LMVBzrpmWRwEEQjur791VniVNG6nZuu+/nWzT6MzvoLTGu4FN4TXJg=
+  - secure: Oh2CqKRR8J4FVY312B3MJrpGkEKp9fRwZxE5HqvnAvdD8It49216l5/RbaLMqIIJ9ZYBomJp5gh54Sq09UV7bWYGZTIpZ7Gp6Mu05MXuSNmdfyn4mjdqo5Yq040p8sLUL0SeNRYd4gHtTxbq4I7HycmoEnnECLEIkqjqm3UsYOOspTlygDWU+vWoe659veUOqMKJIY9tijuAlrD6FCje/G2fY9tKECaprVqleLF+WcPtiHSWUXyCit/SsPkcibp/kHgcHqR80CwGBju8nG7z4x5MRbVr5kZzc65vURdqD9QcwVblSYZ1ix0wAi9hRXXvn4UYYJg5x0qUw6juNjkFq205+rjAuGMWbnFrGYqiWNDsc6hj57ZBPzVkafkxop5nRePZvAWoJAPE/HvoRJr6uOX8LK/QOR/+vuB58jLp98Uqy1Z+bPVrGYnB0J35p9VeZjwJQsO/hyE/6FuAkoR1YO/RZwOywFjRsaTQmLjc8vBNtzSLbIhWDr8YeuTk2LpOwDpW4rDrGXpJTZsE4EatmhYZIBQjezzt0wuIhAedMogVrMZhXic+ocdoXWcXSWweVfEtRGvkDsNwSrRhJZZQ4vEMG+omvvKwR8Cd7tSRKQCdcD8ei9kkJwQirDvf4kwQ+xWgbIjSsWppuj77tjLpopd3wPtEFgykkE2yix6GHvU=

@@ -12,8 +12,28 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-version in ThisBuild := "0.1.0"
+#@namespace scala au.com.cba.omnia.beeswax
 
-uniqueVersionSettings
+struct Primitives {
+  1: bool   boolean
+  2: byte   bytey
+  3: i16    short
+  4: i32    integer
+  5: i64    long
+  6: double doubley
+  7: string stringy
+}
 
-licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+struct Listish {
+  1: i16 short
+  2: list<i32> listy
+}
+
+struct Mapish {
+  1: i16 short
+  2: map<i32, string> mapy
+}
+
+struct Nested {
+  1: map<i32, map<string, list<i32>>> nested
+}

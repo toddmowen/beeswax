@@ -1,20 +1,21 @@
 ---
 layout: default
-title: Ebenezer
+title: Beeswax
 ---
 
-Ebenezer
-========
+Beeswax
+=======
 
-Scalding and Cascading support for using scrooge with parquet.
+> a natural wax produced by honey bees of the genus Apis
 
+Monadic wrapper for the Hive API.
 
-* [Readme](https://github.com/CommBank/ebenezer/)
-* [Scaladoc](/ebenezer/latest/api/index.html)
+* [Readme](https://github.com/CommBank/beeswax/)
+* [Scaladoc](/beeswax/latest/api/index.html)
 
 The latest version is `{{ site.releaseVersion }}`.
 
 Usage
 -----
 
-Add `"au.com.cba.omnia" %% "ebenezer" % "{{ site.releaseVersion }}"` to your sbt file.
+Add `"au.com.cba.omnia" %% "beeswax" % "{{ site.releaseVersion }}"` to your sbt file.

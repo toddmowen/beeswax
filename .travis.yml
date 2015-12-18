@@ -1,4 +1,3 @@
-sudo: false
 language: scala
 jdk:
 - oraclejdk7
@@ -12,18 +11,11 @@ install:
 - ci/sbt-setup.sh
 - ci/sbt-setup-version.sh
 script:
-- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; project core; set fork in Test := false; test; project hive; set fork in Test := false; test; project test; set fork in Test := false; test; project all; package; project example; set fork in Test := false; test; assembly; project tools; set fork in Test := false; set parallelExecution in Test := false; set logBuffered := false; test; assembly'
-  && ci/sbt-deploy.sh && ci/gh-pages.sh
+- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package' && ci/sbt-deploy.sh
+  && ci/gh-pages.sh
 after_script:
 - rm -rf ci
-notifications:
-  webhooks:
-    urls:
-    - https://webhooks.gitter.im/e/1befda9a908413f84c55
-    on_success: always
-    on_failure: always
-    on_start: false
 env:
   global:
-  - secure: G4IWzFRapMps8pNTXbEsI3zRvKlYezU/aHVzj2f90Z9cIbnF0AtV2XdmRiOyWsB1SD5Dda2ekNygsZsFH8kITKga4eUp7B6ZN9985DdbUiW6R2ari8ns2Xj4ygaqc6AR1zEJHBdM2uIacj3Z3V2vAJjuoT9uqJKHXkr7c3yW7Yk=
-  - secure: JvQKKmknPunFLgIV1VBaFyZ1gzazCZBRDDItQc5ZoyzDNF7ADc0VfuXgeCBQCiMviL/EbLf5Or0sAgVMaru3BN2OJs+ndaeD3coekdjPweA/86Qz6QYQIEmY7aGouRRGbmy0/6V5rAlpdwn5HdmiDmiH4uuiXjGW/Py0pBvthqQ=
+  - secure: e4znPHGCSIu6tqDl+3uSQtsGOB5ZLUhtDiwnuSHs7v10/TZt8/XTufD9cdyPVwa1XP/lXCruMOHTzZi0JJN2py9sZl7ycFiUrfEniaO9YPsClw+qIlzGGKrOyUtMDaJOJunwhIYudwpGCV9RMn/TaTHSaDsx/i8bnCLB2pmNXJg=
+  - secure: Z0D9WSL7JE0eYUx1cwy95DgwaixFEfsBXt7SNNkDdfXCJBiDB+eGNjXR/2J5A5qT63YJScUKuJ0GjFGpQi/nU7wRt+wX3oVPThMCLy8T1vniC6ilQsF35HYod3VHlKX855/mOJvAGInMdT1TYEhVh7bT7zhqrVe/P4S6ahi62Iw=

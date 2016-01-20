@@ -2,4 +2,4 @@ name: beeswax
 exclude: [Gemfile]
 markdown: kramdown
 
-releaseVersion:  "0.1.0-20160114052949-9ab22b6"
+releaseVersion:  "0.1.1-20160120052815-6bf77d2"

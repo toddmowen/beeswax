@@ -6,8 +6,6 @@ title: Beeswax
 Beeswax
 =======
 
-> a natural wax produced by honey bees of the genus Apis
-
 Monadic wrapper for the Hive API.
 
 * [Readme](https://github.com/CommBank/beeswax/)

@@ -3,8 +3,8 @@ jdk:
 - oraclejdk7
 cache:
   directories:
-  - "$HOME/.ivy2"
-  - "$HOME/.m2"
+  - $HOME/.ivy2
+  - $HOME/.m2
 install:
 - git clone https://github.com/CommBank/ci.git
 - chmod ugo+x ci/*
@@ -12,10 +12,12 @@ install:
 - ci/sbt-setup-version.sh
 script:
 - sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package' && ci/sbt-deploy.sh
-  && ci/gh-pages.sh
+  && ci/sbt-gh-pages-ssh.sh
 after_script:
 - rm -rf ci
 env:
   global:
-  - secure: RPQUZAS5Fvg7lcwK9D0FD6wlVw3VOxHzqSTkkLjNt9B8/elT0MILF5vW4qEbUHIoXHzmReksqIoSmqp6N4I1DAXYRGObiwU7koIB2YegVsqQHnhA8MBN1fnP0lOuIWzL67zjeKrBdmXAvYU+bLn4GkyH6PL5XFJ38s2mO5jBlG/LxbrSjH2dcADbnptVrC8za0SABbNKk45lgL43b6uEqK6khYINCm87233w1GFf1jL3SFcEzRLRgg7/rW0mAI5ykeumpefjEh5DM40g/CBkiATUXUF5hMqBRMwzBkXDpOXywtm4bN3pRCwIf/BudAMdtLIT3RiwOjGYdrRDPfH5KUyx2ojvE73Iqzp+UP/QW3cMnN/8v/OTv1kReaHgXWed/rxaTVOGgwZIey2ojv0efSLcl8cUNVTeD8u/W9LrBX1YD4hCqfVvMDH9mFoah4pxMfKhBeYb5lNZ2q1i6PYXBfy5BNm9cYCf6HpLlNcutDyORQSqbXAkoYHSWh/RWcRx+6HbKlCJRAgJ3Ws4JsHuhlVgQ3Vioo6qX4gKorXyADnO2fGssvpDN8DvJSbcy9+z0ZZa0uDVPjhND62OYdtc5maIEamlUyufrjlBaPFLYohM1vPwOQFF2LMVBzrpmWRwEEQjur791VniVNG6nZuu+/nWzT6MzvoLTGu4FN4TXJg=
-  - secure: Oh2CqKRR8J4FVY312B3MJrpGkEKp9fRwZxE5HqvnAvdD8It49216l5/RbaLMqIIJ9ZYBomJp5gh54Sq09UV7bWYGZTIpZ7Gp6Mu05MXuSNmdfyn4mjdqo5Yq040p8sLUL0SeNRYd4gHtTxbq4I7HycmoEnnECLEIkqjqm3UsYOOspTlygDWU+vWoe659veUOqMKJIY9tijuAlrD6FCje/G2fY9tKECaprVqleLF+WcPtiHSWUXyCit/SsPkcibp/kHgcHqR80CwGBju8nG7z4x5MRbVr5kZzc65vURdqD9QcwVblSYZ1ix0wAi9hRXXvn4UYYJg5x0qUw6juNjkFq205+rjAuGMWbnFrGYqiWNDsc6hj57ZBPzVkafkxop5nRePZvAWoJAPE/HvoRJr6uOX8LK/QOR/+vuB58jLp98Uqy1Z+bPVrGYnB0J35p9VeZjwJQsO/hyE/6FuAkoR1YO/RZwOywFjRsaTQmLjc8vBNtzSLbIhWDr8YeuTk2LpOwDpW4rDrGXpJTZsE4EatmhYZIBQjezzt0wuIhAedMogVrMZhXic+ocdoXWcXSWweVfEtRGvkDsNwSrRhJZZQ4vEMG+omvvKwR8Cd7tSRKQCdcD8ei9kkJwQirDvf4kwQ+xWgbIjSsWppuj77tjLpopd3wPtEFgykkE2yix6GHvU=
+    secure: cU0A9utG0jOunGn420VpkkHtL8tTxaODROWvy51CaZV+NkWn7i+nzrpiheeGiCj7gI3VaWuXM3PD0L5Ay57uNmP6AJIue+ZoYcf3wn67S01Gs7/2ldievz6ShNC+pDKar2bOLQih7vHJORgLyQEuXX99fuEQIzdREv1MQ5Lp5MYylx32uMh0/V191NP+c4QiPS5RUniuxpvqMvrwmYym7chTvBjN4czFDFcyPlgBgHHrKhN2y4wvy70fMP0TJNBSVlyhbzAkIxS5qLV2Ngab8BIxRjVfTIz7t+efeBsYBLyXmV+cClAe059lZrzE2hT63gQL+4D5hOPuJE1P+LvdLzf3tCunB2IpIdAfKlAGZvf3Y8gQ8MjNnc4sHFvGz4/mXkOaKo9qDQgBO9UhCo5v/Tt+LPapT6tLCbKmrX2nGYYCK+9WMcEpFUMMRXhMWZopwumgjJQlkBF35d9n5XASQpe6/6vJNkIz4TTzCrkOYW2uz6se9Fq3EmGSIUAUnpDQBUJMcjRY89uUHmkClMdwbbFJk8Ihd7PxHAyaF/QML+zK8uQW+dqELSyXvx/zGrQIzSrSEEg55QrLs4nOtzoownSOyVvrER31xJScvGs5RlvQ5ePHaMvA1pa14i3ClID6UTZ+h50KTCyr5jK+Hmh6whtbRmzapl3dbGa0/v32lmU=
+before_install:
+- openssl aes-256-cbc -K $encrypted_d84550f15e95_key -iv $encrypted_d84550f15e95_iv
+  -in .travis/deploy-key.enc -out .travis/deploy-key.pem -d

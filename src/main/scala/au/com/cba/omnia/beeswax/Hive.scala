@@ -38,7 +38,7 @@ import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TMemoryBuffer
 
 
-import au.com.cba.omnia.omnitool.{Result, ResultantMonad, ResultantOps, ToResultantMonadOps}
+import au.com.cba.omnia.omnitool.{Result, ResultantMonad, ResultantOps, ToResultantMonadOps, RelMonad}
 
 /**
   * A data-type that represents a Hive operation.
@@ -410,7 +410,7 @@ object Hive extends ResultantOps[Hive] with ToResultantMonadOps {
     //For some reason when running msck, we can't use the table scoped with the db like db.table
     queries(List(s"USE $database", s"MSCK REPAIR TABLE $table")).map(_ => ())
 
-  implicit val monad: ResultantMonad[Hive] = new ResultantMonad[Hive] {
+  implicit def ResultRel: ResultantMonad[Hive] = new RelMonad[Result, Hive] {
     def rPoint[A](v: => Result[A]): Hive[A] = Hive[A]((_, _) => v)
     def rBind[A, B](ma: Hive[A])(f: Result[A] => Hive[B]): Hive[B] =
       Hive((conf, client) => f(ma.action(conf, client)).action(conf, client))

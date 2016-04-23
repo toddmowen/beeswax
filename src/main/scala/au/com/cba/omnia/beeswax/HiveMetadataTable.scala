@@ -24,11 +24,10 @@ import org.apache.hadoop.hive.metastore.api.{Table => MetadataTable, StorageDesc
 
 import org.apache.thrift.protocol.TType
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec, ThriftStructField}
+import com.twitter.scrooge.{ThriftStructMetaData, ThriftStruct, ThriftStructCodec, ThriftStructField}
 
 /** Replicates the functionality from cascading-hive.*/
 object HiveMetadataTable {
-  
   /** While the earlier operations failed with exception from with the cascading-hive code,
     * we need to deal with failure via `Result`
     */
@@ -40,13 +39,10 @@ object HiveMetadataTable {
     location: Option[Path] = None
   )(implicit m: Manifest[T]): MetadataTable = { // This operation could fail so type should convey it
     val thrift: Class[T]      = m.runtimeClass.asInstanceOf[Class[T]]
-    val codec                 = Reflect.companionOf(thrift).asInstanceOf[ThriftStructCodec[_ <: ThriftStruct]]
-    val metadata              = codec.metaData
-    //Making the types lowercase to enforce the same behaviour as in cascading-hive
-    val columnFieldSchemas    = metadata.fields.sortBy(_.id).map { c => 
-      fieldSchema(c.name, mapType(c).toLowerCase)
-    }
+    val metadata              = getMetadata(thrift)
+    val schema                = getSchema(metadata)
     val partitionFieldSchemas = partitionColumns.map {case(n, t) => fieldSchema(n, t)}
+    val columnFieldSchemas    = schema.map(c => fieldSchema(c._1, c._2))
 
     assert(
       partitionColumns.map(_._1).intersect(metadata.fields.map(_.name)).isEmpty,
@@ -60,15 +56,15 @@ object HiveMetadataTable {
     val sd = new StorageDescriptor();
     columnFieldSchemas.foreach(f => sd.addToCols(f)) 
 
-    location.fold(table.setTableType(TableType.MANAGED_TABLE.toString()))(p => {
-      table.setTableType(TableType.EXTERNAL_TABLE.toString())
+    location.fold(table.setTableType(TableType.MANAGED_TABLE.toString))(p => {
+      table.setTableType(TableType.EXTERNAL_TABLE.toString)
       //Copied from cascading-hive - Need to set this as well since setting the table type would be too obvious
       table.putToParameters("EXTERNAL", "TRUE");
-      sd.setLocation(p.toString())
+      sd.setLocation(p.toString)
     })
     table.setSd(sd)
 
-    if (!partitionFieldSchemas.isEmpty) {
+    if (partitionFieldSchemas.nonEmpty) {
         table.setPartitionKeys(partitionFieldSchemas)
         table.setPartitionKeysIsSet(true)
     }
@@ -106,13 +102,28 @@ object HiveMetadataTable {
       }
 
       // n type params
-      case TType.STRUCT => throw new Exception("STRUCT is not a supported Hive type")
+      case TType.STRUCT => {
+        val thrift   = field.manifest.get.runtimeClass
+        val metadata = getMetadata(thrift)
+        val schema   = getSchema(metadata)
+        s"struct<${schema.map(t => s"${t._1}:${t._2}").mkString(",")}>"
+      }
 
       // terminals
       case TType.VOID   => throw new Exception("VOID is not a supported Hive type")
       case TType.STOP   => throw new Exception("STOP is not a supported Hive type")
     }
   }
+
+  /** Gets the metadata from `ThriftStructCodec` */
+  def getMetadata(thrift: Class[_]) = {
+    val codec = Reflect.companionOf(thrift).asInstanceOf[ThriftStructCodec[_ <: ThriftStruct]]
+    codec.metaData
+  }
+
+  /** Gets the schema from `T`. */
+  def getSchema[T <: ThriftStruct](metadata: ThriftStructMetaData[T]) =
+    metadata.fields.sortBy(_.id).map { c => (c.name, mapType(c).toLowerCase) }
 
   /** Gets the manifests of the type arguments for complex thrift types such as Map. */
   def argsOf(field: ThriftStructField[_]): List[Manifest[_]] = {

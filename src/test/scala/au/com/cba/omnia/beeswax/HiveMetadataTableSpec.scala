@@ -16,22 +16,23 @@ package au.com.cba.omnia.beeswax
 
 import scala.collection.JavaConverters._
 
-import org.apache.hadoop.hive.metastore.api.FieldSchema
+import org.apache.hadoop.hive.metastore.api.{FieldSchema, StorageDescriptor}
 
 import org.specs2.Specification
 import org.specs2.matcher.ThrownExpectations
-
-import org.apache.hadoop.hive.metastore.api.StorageDescriptor
 
 class HiveMetadataTableSpec extends Specification with ThrownExpectations { def is = s2"""
 
 HiveMetadataTableSpec
 =====================
 
-  create a valid  table for primitive types      $primitives
-  create a valid table for list                  $list
-  create a valid table for map                   $map
-  create a valid table for nested maps and lists $nested
+  create a valid  table for primitive types        $primitives
+  create a valid table for list                    $list
+  create a valid table for map                     $map
+  create a valid table for nested maps and lists   $nested
+  create a valid table for structs with primitives $structWithPrimitives
+  create a valid table for structs with map        $structWithMaps
+  create a valid table for structs with list       $structWithList
 
 """
 
@@ -81,6 +82,56 @@ HiveMetadataTableSpec
     )
 
     val td = HiveMetadataTable[Nested]("db", "test", List.empty, ParquetFormat)
+    val sd = td.getSd
+
+    val actual = sd.getCols.asScala.toList
+
+    verifyInputOutputFormatForParquet(sd)
+    actual must_== expected
+  }
+
+  def structWithPrimitives =  {
+   val expected =
+     List(
+       new FieldSchema("short", "smallint", com),
+       new FieldSchema(
+        "primitives",
+        "struct<boolean:boolean,bytey:tinyint,short:smallint,integer:int,long:bigint,doubley:double,stringy:string>",
+        com
+      )
+    )
+
+    val td = HiveMetadataTable[StructishPrimitives]("db", "test", List.empty, ParquetFormat)
+    val sd = td.getSd
+
+    val actual = sd.getCols.asScala.toList
+
+    verifyInputOutputFormatForParquet(sd)
+    actual must_== expected
+  }
+
+  def structWithMaps =  {
+    val expected = List(
+      new FieldSchema("short", "smallint", com),
+      new FieldSchema("mapish", "struct<short:smallint,mapy:map<int,string>>", com)
+    )
+
+    val td = HiveMetadataTable[StructishMap]("db", "test", List.empty, ParquetFormat)
+    val sd = td.getSd
+
+    val actual = sd.getCols.asScala.toList
+
+    verifyInputOutputFormatForParquet(sd)
+    actual must_== expected
+  }
+
+  def structWithList =  {
+    val expected = List(
+      new FieldSchema("short", "smallint", com),
+      new FieldSchema("listy", "struct<short:smallint,listy:array<int>>", com)
+    )
+
+    val td = HiveMetadataTable[StructishList]("db", "test", List.empty, ParquetFormat)
     val sd = td.getSd
 
     val actual = sd.getCols.asScala.toList

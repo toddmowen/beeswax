@@ -102,7 +102,7 @@ object HiveMetadataTable {
       }
 
       // n type params
-      case TType.STRUCT => getThriftString(field.manifest.get.runtimeClass)
+      case TType.STRUCT => structToHiveString(field.manifest.get.runtimeClass)
 
       // terminals
       case TType.VOID   => throw new Exception("VOID is not a supported Hive type")
@@ -110,7 +110,7 @@ object HiveMetadataTable {
     }
   }
 
-   def getThriftString = getMetadata andThen getSchema andThen fromSchema
+   def structToHiveString = getMetadata andThen getSchema andThen fromSchema
 
   /** Gets the metadata from `ThriftStructCodec` */
   val getMetadata = (thrift: Class[_]) => {
@@ -147,7 +147,7 @@ object HiveMetadataTable {
     else if (manifest[String] == mani)
       "string"
     else if (mani.runtimeClass.getInterfaces.contains(classOf[ThriftStruct]))
-      getThriftString(mani.runtimeClass)
+      structToHiveString(mani.runtimeClass)
 
     else if (manifest[CMap[_, _]].runtimeClass == mani.runtimeClass) {
       val args      = mani.typeArguments

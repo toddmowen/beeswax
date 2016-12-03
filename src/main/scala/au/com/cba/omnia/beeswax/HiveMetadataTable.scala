@@ -41,7 +41,7 @@ object HiveMetadataTable {
     val thrift: Class[T]      = m.runtimeClass.asInstanceOf[Class[T]]
     val metadata              = getMetadata(thrift)
     val schema                = getSchema(metadata)
-    val partitionFieldSchemas = partitionColumns.map {case(n, t) => fieldSchema(n, t)}
+    val partitionFieldSchemas = partitionColumns.map { case(n, t) => fieldSchema(n, t) }
     val columnFieldSchemas    = schema.map { case(n, t) => fieldSchema(n, t) }
 
     assert(
@@ -123,7 +123,7 @@ object HiveMetadataTable {
     metadata.fields.sortBy(_.id).map { c => (c.name, mapType(c).toLowerCase) }
 
   def fromSchema(schema: Seq[(String, String)]) =
-    s"struct<${schema.map(t => s"${t._1}:${t._2}").mkString(",")}>"
+    s"struct<${schema.map { case (keyType, valueType) => s"${keyType}:${valueType}" }.mkString(",")}>"
 
   /** Gets the manifests of the type arguments for complex thrift types such as Map. */
   def argsOf(field: ThriftStructField[_]): List[Manifest[_]] = {

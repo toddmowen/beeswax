@@ -52,3 +52,8 @@ struct StructishList {
 1: i16 short
 2: Listish listy
 }
+
+struct ListishStruct {
+1: i16 short
+2: list<Listish> listy
+}

@@ -32,9 +32,9 @@ object HiveMetadataTable {
     * we need to deal with failure via `Result`
     */
   def apply[T <: ThriftStruct](
-    database: String, 
+    database: String,
     tableName: String,
-    partitionColumns: List[(String, String)], 
+    partitionColumns: List[(String, String)],
     format: HiveStorageFormat,
     location: Option[Path] = None
   )(implicit m: Manifest[T]): MetadataTable = { // This operation could fail so type should convey it
@@ -42,24 +42,24 @@ object HiveMetadataTable {
     val metadata              = getMetadata(thrift)
     val schema                = getSchema(metadata)
     val partitionFieldSchemas = partitionColumns.map {case(n, t) => fieldSchema(n, t)}
-    val columnFieldSchemas    = schema.map(c => fieldSchema(c._1, c._2))
+    val columnFieldSchemas    = schema.map { case(n, t) => fieldSchema(n, t) }
 
     assert(
       partitionColumns.map(_._1).intersect(metadata.fields.map(_.name)).isEmpty,
       "Partition columns must be different from the fields in the thrift struct"
     )
 
-    val table = new MetadataTable();
-    table.setDbName(database.toLowerCase); 
+    val table = new MetadataTable()
+    table.setDbName(database.toLowerCase)
     table.setTableName(tableName.toLowerCase)
 
-    val sd = new StorageDescriptor();
-    columnFieldSchemas.foreach(f => sd.addToCols(f)) 
+    val sd = new StorageDescriptor()
+    columnFieldSchemas.foreach(f => sd.addToCols(f))
 
     location.fold(table.setTableType(TableType.MANAGED_TABLE.toString))(p => {
       table.setTableType(TableType.EXTERNAL_TABLE.toString)
       //Copied from cascading-hive - Need to set this as well since setting the table type would be too obvious
-      table.putToParameters("EXTERNAL", "TRUE");
+      table.putToParameters("EXTERNAL", "TRUE")
       sd.setLocation(p.toString)
     })
     table.setSd(sd)
@@ -102,12 +102,7 @@ object HiveMetadataTable {
       }
 
       // n type params
-      case TType.STRUCT => {
-        val thrift   = field.manifest.get.runtimeClass
-        val metadata = getMetadata(thrift)
-        val schema   = getSchema(metadata)
-        s"struct<${schema.map(t => s"${t._1}:${t._2}").mkString(",")}>"
-      }
+      case TType.STRUCT => getThriftString(field.manifest.get.runtimeClass)
 
       // terminals
       case TType.VOID   => throw new Exception("VOID is not a supported Hive type")
@@ -115,15 +110,20 @@ object HiveMetadataTable {
     }
   }
 
+   def getThriftString = getMetadata andThen getSchema andThen fromSchema
+
   /** Gets the metadata from `ThriftStructCodec` */
-  def getMetadata(thrift: Class[_]) = {
+  val getMetadata = (thrift: Class[_]) => {
     val codec = Reflect.companionOf(thrift).asInstanceOf[ThriftStructCodec[_ <: ThriftStruct]]
     codec.metaData
   }
 
   /** Gets the schema from `T`. */
-  def getSchema[T <: ThriftStruct](metadata: ThriftStructMetaData[T]) =
+  val getSchema = (metadata: ThriftStructMetaData[ _ <: ThriftStruct]) =>
     metadata.fields.sortBy(_.id).map { c => (c.name, mapType(c).toLowerCase) }
+
+  def fromSchema(schema: Seq[(String, String)]) =
+    s"struct<${schema.map(t => s"${t._1}:${t._2}").mkString(",")}>"
 
   /** Gets the manifests of the type arguments for complex thrift types such as Map. */
   def argsOf(field: ThriftStructField[_]): List[Manifest[_]] = {
@@ -146,15 +146,22 @@ object HiveMetadataTable {
       "bigint"
     else if (manifest[String] == mani)
       "string"
+    else if (mani.runtimeClass.getInterfaces.contains(classOf[ThriftStruct]))
+      getThriftString(mani.runtimeClass)
+
     else if (manifest[CMap[_, _]].runtimeClass == mani.runtimeClass) {
       val args      = mani.typeArguments
       val keyType   = toThriftType(args(0))
       val valueType = toThriftType(args(1))
       s"map<$keyType,$valueType>"
-    } else if (manifest[Seq[_]].runtimeClass == mani.runtimeClass) {
+    }
+
+    else if (manifest[Seq[_]].runtimeClass == mani.runtimeClass) {
       val elementType = toThriftType(mani.typeArguments.head)
       s"array<$elementType>"
-    } else
+    }
+
+    else
       throw new Exception(s"$mani is not a supported nested type")
   }
 

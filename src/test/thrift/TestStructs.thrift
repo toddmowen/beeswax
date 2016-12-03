@@ -57,3 +57,8 @@ struct ListishStruct {
 1: i16 short
 2: list<Listish> listy
 }
+
+struct MapishStruct {
+1: i16 short
+2: map<i32, Listish> mappy
+}

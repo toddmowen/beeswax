@@ -72,7 +72,7 @@ object HiveMetadataTable {
   }
 
   def fieldSchema(n: String, t: String) =
-    new FieldSchema(n, t, "Created by Ebenezer")
+    new FieldSchema(n, t, "Created by Beeswax")
 
   /** Maps Thrift types to Hive types.*/
   def mapType(field: ThriftStructField[_]): String = {

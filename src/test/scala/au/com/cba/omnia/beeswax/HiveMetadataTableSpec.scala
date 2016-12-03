@@ -26,17 +26,19 @@ class HiveMetadataTableSpec extends Specification with ThrownExpectations { def 
 HiveMetadataTableSpec
 =====================
 
-  create a valid  table for primitive types        primitives
-  create a valid table for list                    list
-  create a valid table for map                     map
-  create a valid table for nested maps and lists   nested
-  create a valid table for structs with primitives structWithPrimitives
-  create a valid table for structs with map        structWithMaps
-  create a valid table for structs with list       structWithList
+  create a valid  table for primitive types        $primitives
+  create a valid table for list                    $list
+  create a valid table for map                     $map
+  create a valid table for nested maps and lists   $nested
+  create a valid table for structs with primitives $structWithPrimitives
+  create a valid table for structs with map        $structWithMaps
+  create a valid table for structs with list       $structWithList
   create a valid table for list of structs         $listWithStruct
+   create a valid table for list of structs        $mapWithStruct
+
 """
 
-  val com = "Created by Ebenezer"
+  val com = "Created by Beeswax"
 
   def verifyInputOutputFormatForParquet(sd: StorageDescriptor) = {
     sd.getInputFormat()  must_== ParquetFormat.inputFormat
@@ -152,6 +154,21 @@ HiveMetadataTableSpec
     )
 
     val td = HiveMetadataTable[ListishStruct]("db", "test", List.empty, ParquetFormat)
+    val sd = td.getSd
+
+    val actual = sd.getCols.asScala.toList
+
+    verifyInputOutputFormatForParquet(sd)
+    actual must_== expected
+  }
+
+  def mapWithStruct = {
+    val expected = List(
+      new FieldSchema("short", "smallint", com),
+      new FieldSchema("mappy", "map<int,struct<short:smallint,listy:array<int>>>", com)
+    )
+
+    val td = HiveMetadataTable[MapishStruct]("db", "test", List.empty, ParquetFormat)
     val sd = td.getSd
 
     val actual = sd.getCols.asScala.toList

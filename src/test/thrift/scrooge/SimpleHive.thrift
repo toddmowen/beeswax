@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-#@namespace scala au.com.cba.omnia.beeswax
+#@namespace scala au.com.cba.omnia.beeswax.scrooge
 
 struct SimpleHive {
   1: string  stringfield

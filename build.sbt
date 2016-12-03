@@ -1,17 +1,24 @@
 uniform.project("beeswax", "au.com.cba.omnia.beeswax")
 
 uniform.docSettings("https://github.com/CommBank/beeswax")
+
 uniform.ghsettings
 
-updateOptions                     := updateOptions.value.withCachedResolution(true)
-parallelExecution         in Test := false
+updateOptions              := updateOptions.value.withCachedResolution(true)
+
+parallelExecution  in Test := false
 
 uniformDependencySettings
 uniformThriftSettings
+humbugSettings
 strictDependencySettings
 
 val omnitoolVersion    = "1.14.2-20161028030316-93de570"
 val thermometerVersion = "1.4.6-20161026213817-fb25e67"
+
+scroogeThriftSourceFolder in Compile <<= sourceDirectory { _ / "test" / "thrift" / "scrooge" }
+
+humbugThriftSourceFolder in Compile <<= sourceDirectory { _ / "test" / "thrift" / "humbug" }
 
 libraryDependencies :=
   depend.hadoopClasspath ++

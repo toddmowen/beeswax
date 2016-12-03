@@ -12,9 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-#@namespace scala au.com.cba.omnia.beeswax
+#@namespace scala au.com.cba.omnia.beeswax.humbug
 
-struct Primitives {
+struct HPrimitives {
   1: bool   boolean
   2: byte   bytey
   3: i16    short
@@ -24,41 +24,7 @@ struct Primitives {
   7: string stringy
 }
 
-struct Listish {
-  1: i16 short
-  2: list<i32> listy
-}
-
-struct Mapish {
-  1: i16 short
-  2: map<i32, string> mapy
-}
-
-struct Nested {
-  1: map<i32, map<string, list<i32>>> nested
-}
-
-struct StructishPrimitives {
+struct HumbugStructishPrimitives {
 1: i16 short
-2: Primitives primitives
-}
-
-struct StructishMap {
-1: i16 short
-2: Mapish mapish
-}
-
-struct StructishList {
-1: i16 short
-2: Listish listy
-}
-
-struct ListishStruct {
-1: i16 short
-2: list<Listish> listy
-}
-
-struct MapishStruct {
-1: i16 short
-2: map<i32, Listish> mappy
+2: HPrimitives primitives
 }

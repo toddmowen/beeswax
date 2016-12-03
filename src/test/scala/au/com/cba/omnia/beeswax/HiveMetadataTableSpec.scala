@@ -34,7 +34,7 @@ HiveMetadataTableSpec
   create a valid table for structs with map        $structWithMaps
   create a valid table for structs with list       $structWithList
   create a valid table for list of structs         $listWithStruct
-  create a valid table for list of structs         $mapWithStruct
+  create a valid table for map of structs          $mapWithStruct
 
 """
 

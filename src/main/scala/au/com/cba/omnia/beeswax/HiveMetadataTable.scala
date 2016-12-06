@@ -148,19 +148,16 @@ object HiveMetadataTable {
       "string"
     else if (mani.runtimeClass.getInterfaces.contains(classOf[ThriftStruct]))
       structToHiveString(mani.runtimeClass)
-
     else if (manifest[CMap[_, _]].runtimeClass == mani.runtimeClass) {
       val args      = mani.typeArguments
       val keyType   = toThriftType(args(0))
       val valueType = toThriftType(args(1))
       s"map<$keyType,$valueType>"
     }
-
     else if (manifest[Seq[_]].runtimeClass == mani.runtimeClass) {
       val elementType = toThriftType(mani.typeArguments.head)
       s"array<$elementType>"
     }
-
     else
       throw new Exception(s"$mani is not a supported nested type")
   }

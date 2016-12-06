@@ -37,3 +37,28 @@ struct Mapish {
 struct Nested {
   1: map<i32, map<string, list<i32>>> nested
 }
+
+struct StructishPrimitives {
+1: i16 short
+2: Primitives primitives
+}
+
+struct StructishMap {
+1: i16 short
+2: Mapish mapish
+}
+
+struct StructishList {
+1: i16 short
+2: Listish listy
+}
+
+struct ListishStruct {
+1: i16 short
+2: list<Listish> listy
+}
+
+struct MapishStruct {
+1: i16 short
+2: map<i32, Listish> mappy
+}

@@ -12,13 +12,12 @@ strictDependencySettings
 
 val omnitoolVersion    = "1.14.2-20161028030316-93de570"
 val thermometerVersion = "1.4.6-20161026213817-fb25e67"
-val humbugVersion      = "0.7.3-20161026213926-d09fb4b"
 
 libraryDependencies :=
-  depend.hadoopClasspath ++ 
-  depend.hadoop() ++ 
-  depend.testing() ++ 
-  depend.hive() ++ 
+  depend.hadoopClasspath ++
+  depend.hadoop() ++
+  depend.testing() ++
+  depend.hive() ++
   depend.parquet() ++
   depend.omnia("omnitool-core", omnitoolVersion) ++
   depend.omnia("thermometer-hive", thermometerVersion, "test") ++

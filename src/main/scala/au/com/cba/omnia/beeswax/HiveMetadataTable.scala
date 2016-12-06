@@ -24,51 +24,47 @@ import org.apache.hadoop.hive.metastore.api.{Table => MetadataTable, StorageDesc
 
 import org.apache.thrift.protocol.TType
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec, ThriftStructField}
+import com.twitter.scrooge.{ThriftStructMetaData, ThriftStruct, ThriftStructCodec, ThriftStructField}
 
 /** Replicates the functionality from cascading-hive.*/
 object HiveMetadataTable {
-  
   /** While the earlier operations failed with exception from with the cascading-hive code,
     * we need to deal with failure via `Result`
     */
   def apply[T <: ThriftStruct](
-    database: String, 
+    database: String,
     tableName: String,
-    partitionColumns: List[(String, String)], 
+    partitionColumns: List[(String, String)],
     format: HiveStorageFormat,
     location: Option[Path] = None
   )(implicit m: Manifest[T]): MetadataTable = { // This operation could fail so type should convey it
     val thrift: Class[T]      = m.runtimeClass.asInstanceOf[Class[T]]
-    val codec                 = Reflect.companionOf(thrift).asInstanceOf[ThriftStructCodec[_ <: ThriftStruct]]
-    val metadata              = codec.metaData
-    //Making the types lowercase to enforce the same behaviour as in cascading-hive
-    val columnFieldSchemas    = metadata.fields.sortBy(_.id).map { c => 
-      fieldSchema(c.name, mapType(c).toLowerCase)
-    }
-    val partitionFieldSchemas = partitionColumns.map {case(n, t) => fieldSchema(n, t)}
+    val metadata              = getMetadata(thrift)
+    val schema                = getSchema(metadata)
+    val partitionFieldSchemas = partitionColumns.map { case(n, t) => fieldSchema(n, t) }
+    val columnFieldSchemas    = schema.map { case(n, t) => fieldSchema(n, t) }
 
     assert(
       partitionColumns.map(_._1).intersect(metadata.fields.map(_.name)).isEmpty,
       "Partition columns must be different from the fields in the thrift struct"
     )
 
-    val table = new MetadataTable();
-    table.setDbName(database.toLowerCase); 
+    val table = new MetadataTable()
+    table.setDbName(database.toLowerCase)
     table.setTableName(tableName.toLowerCase)
 
-    val sd = new StorageDescriptor();
-    columnFieldSchemas.foreach(f => sd.addToCols(f)) 
+    val sd = new StorageDescriptor()
+    columnFieldSchemas.foreach(f => sd.addToCols(f))
 
-    location.fold(table.setTableType(TableType.MANAGED_TABLE.toString()))(p => {
-      table.setTableType(TableType.EXTERNAL_TABLE.toString())
+    location.fold(table.setTableType(TableType.MANAGED_TABLE.toString))(p => {
+      table.setTableType(TableType.EXTERNAL_TABLE.toString)
       //Copied from cascading-hive - Need to set this as well since setting the table type would be too obvious
-      table.putToParameters("EXTERNAL", "TRUE");
-      sd.setLocation(p.toString())
+      table.putToParameters("EXTERNAL", "TRUE")
+      sd.setLocation(p.toString)
     })
     table.setSd(sd)
 
-    if (!partitionFieldSchemas.isEmpty) {
+    if (partitionFieldSchemas.nonEmpty) {
         table.setPartitionKeys(partitionFieldSchemas)
         table.setPartitionKeysIsSet(true)
     }
@@ -76,7 +72,7 @@ object HiveMetadataTable {
   }
 
   def fieldSchema(n: String, t: String) =
-    new FieldSchema(n, t, "Created by Ebenezer")
+    new FieldSchema(n, t, "Created by Beeswax")
 
   /** Maps Thrift types to Hive types.*/
   def mapType(field: ThriftStructField[_]): String = {
@@ -106,13 +102,28 @@ object HiveMetadataTable {
       }
 
       // n type params
-      case TType.STRUCT => throw new Exception("STRUCT is not a supported Hive type")
+      case TType.STRUCT => structToHiveString(field.manifest.get.runtimeClass)
 
       // terminals
       case TType.VOID   => throw new Exception("VOID is not a supported Hive type")
       case TType.STOP   => throw new Exception("STOP is not a supported Hive type")
     }
   }
+
+   def structToHiveString = getMetadata andThen getSchema andThen fromSchema
+
+  /** Gets the metadata from `ThriftStructCodec` */
+  val getMetadata = (thrift: Class[_]) => {
+    val codec = Reflect.companionOf(thrift).asInstanceOf[ThriftStructCodec[_ <: ThriftStruct]]
+    codec.metaData
+  }
+
+  /** Gets the schema from `T`. */
+  val getSchema = (metadata: ThriftStructMetaData[ _ <: ThriftStruct]) =>
+    metadata.fields.sortBy(_.id).map { c => (c.name, mapType(c).toLowerCase) }
+
+  def fromSchema(schema: Seq[(String, String)]) =
+    s"struct<${schema.map { case (keyType, valueType) => s"${keyType}:${valueType}" }.mkString(",")}>"
 
   /** Gets the manifests of the type arguments for complex thrift types such as Map. */
   def argsOf(field: ThriftStructField[_]): List[Manifest[_]] = {
@@ -135,15 +146,19 @@ object HiveMetadataTable {
       "bigint"
     else if (manifest[String] == mani)
       "string"
+    else if (mani.runtimeClass.getInterfaces.contains(classOf[ThriftStruct]))
+      structToHiveString(mani.runtimeClass)
     else if (manifest[CMap[_, _]].runtimeClass == mani.runtimeClass) {
       val args      = mani.typeArguments
       val keyType   = toThriftType(args(0))
       val valueType = toThriftType(args(1))
       s"map<$keyType,$valueType>"
-    } else if (manifest[Seq[_]].runtimeClass == mani.runtimeClass) {
+    }
+    else if (manifest[Seq[_]].runtimeClass == mani.runtimeClass) {
       val elementType = toThriftType(mani.typeArguments.head)
       s"array<$elementType>"
-    } else
+    }
+    else
       throw new Exception(s"$mani is not a supported nested type")
   }
 

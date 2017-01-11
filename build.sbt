@@ -22,7 +22,7 @@ libraryDependencies :=
   depend.omnia("omnitool-core", omnitoolVersion) ++
   depend.omnia("thermometer-hive", thermometerVersion, "test") ++
   Seq(
-    "org.specs2"               %% "specs2-core"   % depend.versions.specs,
+    "org.specs2"               %% "specs2-core"   % depend.versions.specs % "test",
     "com.twitter"              %% "scrooge-core"  % depend.versions.scrooge,
     "au.com.cba.omnia"         %% "omnitool-core" % omnitoolVersion % "test" classifier "tests"
   )

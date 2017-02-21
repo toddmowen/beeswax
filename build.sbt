@@ -10,7 +10,7 @@ uniformDependencySettings
 uniformThriftSettings
 strictDependencySettings
 
-val omnitoolVersion    = "1.14.5-20170131184129-99ae321"
+val omnitoolVersion    = "1.14.6-20170221081926-378a521"
 val thermometerVersion = "1.5.5-20170221075632-abcad7c"
 
 libraryDependencies :=

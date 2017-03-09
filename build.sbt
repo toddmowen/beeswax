@@ -11,7 +11,7 @@ uniformThriftSettings
 strictDependencySettings
 
 val omnitoolVersion    = "1.14.6-20170221081926-378a521"
-val thermometerVersion = "1.5.5-20170221075632-abcad7c"
+val thermometerVersion = "1.5.6-20170303043502-111464d"
 
 libraryDependencies :=
   depend.hadoopClasspath ++

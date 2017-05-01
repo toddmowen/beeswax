@@ -1,0 +1,5 @@
+name: beeswax
+exclude: [Gemfile]
+markdown: kramdown
+
+releaseVersion: 0.1.14-20170501025604-3e9bf2e

@@ -218,7 +218,7 @@ Hive operations:
       dbs <- Hive.query("SHOW DATABASES")
     } yield dbs
 
-    x must beValue(List("test"))
+    x must beValue(List("default", "test"))
   }
 
   def queries = {
@@ -227,7 +227,7 @@ Hive operations:
       res <- Hive.queries(List("SHOW DATABASES", "SHOW TABLES IN test"))
     } yield res
 
-    x must beValue(List(List("test"), List("test2")))
+    x must beValue(List(List("default", "test"), List("test2")))
   }
 
   def queriesOrdered = {

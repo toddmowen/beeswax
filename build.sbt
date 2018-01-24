@@ -10,8 +10,11 @@ uniformDependencySettings
 uniformThriftSettings
 strictDependencySettings
 
-val omnitoolVersion    = "1.14.9-20170710003444-8f25fcd"
-val thermometerVersion = "1.5.10-20170501023059-67accaf"
+// TODO: Move this into UniformDependencyPlugin public resolver list
+resolvers += "Twitter Maven HTTPS" at "https://maven.twttr.com"
+
+val omnitoolVersion    = "1.15.0-20180124002420-8583973-cdh-513"
+val thermometerVersion = "1.6.0-20180124000127-aec09bd-cdh-513"
 
 libraryDependencies :=
   depend.hadoopClasspath ++
